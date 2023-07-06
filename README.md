@@ -48,12 +48,37 @@ Most of the code in the tweak is just overriding lots of methods in identityserv
 2. Instead of the iPhone sending the SMS itself, we extract the push token and generate the `REG-REQ` SMS on the Android side.
     1. The REG-REQ message has the format `REG-REQ?v=3;t=76AAFD15711EF157CF1B8F90FAF21B561CB12EFCE9DE861D8AAE6816CF4A8A71;r=8875166862`
     2. The `v=3` indicates the version of Phone Number Registration to use. On my iPhone it's always 3, on older phones it might use an older version
-    3. The `t=76AA...` is the iMessage push token of your device. This is how Apple identifies your device on the iMessage network. It acts a lot as a "shell" user ID that other phone numbers/emails/etc are attached to.
-    4. The `r=` is the request number (the REG-RESP message will contain a matching number). Appears to be random--the PNRGatewayClientV2 Android app just generates this randomly
+    3. The `t=76AA...` is the iMessage push token of your device. This is how Apple identifies your device on the iMessage network. It acts a lot like a "shell" user ID that your phone numbers/emails/etc are attached to. Thus, when others type your phone number or email into their iPhone, it'll look up your push token in Apple's big database and send an iMessage to it.
+    4. The `r=` is the request number (the REG-RESP message will contain a matching number). Appears to be random--the PNRGatewayClientV2 Android app just generates this randomly and that appears to be fine
 3. The Android phone receives the `REG-RESP` SMS from Apple
     1. In version 1 of PNRGateway, it just sends this back via SMS so the iPhone can process it. In version 2 this isn't possible (the iPhone can't receive SMS message anymore), so it just shows a notification and leaves transporting the SMS as an exercise to the user. If you're integrating this into an app, of course, you'll want to use some sort of push notification delivery system to send this over the internet. (Adding push notification support into the tweak was out of the scope of this proof-of-concept, but I wish you the best of luck!)
     2. The `ReceivePNR` .deb is just a command-line tool. There's no technical requirement for it to be a spearate tweak (and if you're integrating push notifications it'll probably make more sense to just make one), but I split it out as a separate command line tool to make it easy to paste in the REG-RESP message over SSH.
+    3. Also, some fun information about the contents of the REG-RESP message!
+        1. The REG-RESP message has this format: `REG-RESP?v=3;r=72325403;n=+11234567890;s=CA21C50C645469B25F4B65C38A7DCEC56592E038F39489F35C7CD6972D`
+        2. The `v=3` is the version number, just like in the REG-REQ message
+        3. The `r=72327403` is the request number, which is exactly the same as in the REG-REQ message
+        4. The `n=+11234567890` is the phone number Apple thinks you have. In this example it's `+1 (123) 456-7890`
+        5. The `s=CA21C5...` is a digital signature, which is how Apple verifies that your phone number and push token are linked. **Apple appears to be running a certificate authority over SMS, where it signs push tokens alongside the phone number they come from (which is just bonkers).**
+ 
+That's about it as far as major technical differences go--most of the rest of the tweak is just playing whack-a-mole on which methods tell identityservicesd whether it has an active SIM in the phone or not, as well as a little state modification so the iPhone is able to accept the REG-RESP SMS when we pipe it in. I tried to put in some helpful block comments throughout the tweak, so hopefully those will make sense.
 
-That's about it as far as major technical differences go--most of the rest of the tweak is just playing whack-a-mole on which methods tell identityservicesd whether it has an active SIM in the phone or not, as well as a little state modification so the iPhone is able to accept the REG-RESP SMS when we pipe it in. I tried to put in some helpful block comments throughout the tweak, so hopefully those will makes sense.
+## Registration Stages
 
-Happy hacking!
+I also learned a little bit about the different stages of registration. If you've [unredacted the iOS logs](https://github.com/EthanArbuckle/unredact-private-os_logs), you should see lots of log messages displaying a registration info that looks like this: 
+
+```
+Registration info (0x1013cd720): [Status: Waiting for Authentication Response] [Type: Phone Number]...
+```
+
+There are five different statuses that I've observed
+
+| Status      | Description |
+| ----------- | ----------- |
+| Unregistered      | Device has not sent the registration SMS. The preflight message is part of this stage       |
+| Waiting for Authentication Response   | The SMS message has been sent and the device is waiting for a REG-RESP response        |
+| Authenticated   | The iPhone has received the REG-RESP SMS with the digitally signed phone number and push token, but has not applied to be in Apple's iMessage database. In this stage, your iPhone has a signature for its own phone number, but Apple's database doesn't have it yet.         |
+| HTTP Registering   | The device sends its signature to Apple to add itself to Apple’s database of registered iMessage users        |
+| Registered   | Apple accepts the signature as valid and you're now active on the iMessage network        |
+
+
+I hope this was at least a little helpful. Happy hacking!
