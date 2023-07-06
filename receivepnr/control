@@ -1,0 +1,10 @@
+Package: dev.altavision.receivepnr
+Name: ReceivePNR
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome tool of some sort!!
+Maintainer: Isaac
+Author: Isaac
+Section: System
+Tag: role::hacker
+Depends: mobilesubstrate, com.muirey03.libmryipc

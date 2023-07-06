@@ -1,0 +1,10 @@
+Package: dev.altavision.pnrsender
+Name: PNRSender
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Isaac
+Author: Isaac
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), com.muirey03.libmryipc
+Icon: https://i.imgur.com/K9z0H6x.png

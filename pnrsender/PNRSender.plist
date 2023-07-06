@@ -1,0 +1,7 @@
+{ Filter = { Bundles = (
+    "com.apple.identityservicesd",
+    "com.apple.IMCore",
+    "com.apple.IMDaemonCore",
+    "com.apple.Foundation",
+    "com.apple.springboard", "com.apple.MobileSMS"
+); Executables = ( "imagent", "MobileSMS", "identityservicesd" ); }; }
