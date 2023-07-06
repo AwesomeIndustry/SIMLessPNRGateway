@@ -1,7 +1,7 @@
 # SIMLessPNRGateway
-[Public version] iMessage phone number registration on Android devices, without a separate SIM card!
+[Public version] iMessage phone number registration on Android devices, without a separate SIM card! Special thanks to [itsjunetime](https://github.com/itsjunetime) and [ericmigi](https://gist.github.com/ericmigi) for Objective-C help and advice!
 
-Version 2 of [PNRGatewayTweak](https://github.com/AwesomeIndustry/PNRGatewayTweak) and [PNRGatewayClient](https://github.com/AwesomeIndustry/PNRGatewayClient) is here!
+This is version 2 of the older [PNRGatewayTweak](https://github.com/AwesomeIndustry/PNRGatewayTweak) and [PNRGatewayClient](https://github.com/AwesomeIndustry/PNRGatewayClient).
 
 This tweak/Android app system allows you to register an Android phone number to iMessage! You'll need a jailbroken iPhone (I have a 5S on 12.5.7, results may vary by device and iOS version), but
 it doesn't need to have its own SIM card anymore! This is more of a demo version, so there's still a fair amount of manual copy/pasting to/from the iPhone, Android phone, etc. If
