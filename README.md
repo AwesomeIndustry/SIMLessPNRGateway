@@ -13,7 +13,14 @@ you're interested in a standalone solution, PNRGateway Version 1 (linked above) 
 is more stable and will work automatically. Version 2 right now requires lots of manual copying/pasting, so it's more intended for use in an existing application
 where you can send the data back and forth over the internet using something like Firebase or HTTP.
 
-## How to get it working!
+## How to build SIMLessPNRGateway
+
+1. [Install theos](https://theos.dev/docs/installation) if you haven't already
+2. `cd` into the project directory
+3. Run `make package`. This creates a `.deb` file in the `packages` directory--transfer that to your iOS device and install it.
+4. Alternatively to step (3), if you have SSH enabled on your iPhone, open the Makefile and change `THEOS_DEVICE_IP` to your iPhone's IP Address
+
+## How to use/test SIMLessPNRGateway
 
 You'll need an iPhone 5S running iOS 12.5.7 (the lastest version as of writing). Other iPhones and versions may work but are untested.
 
