@@ -18,7 +18,7 @@ where you can send the data back and forth over the internet using something lik
 1. [Install theos](https://theos.dev/docs/installation) if you haven't already
 2. `cd` into the project directory
 3. Run `make package`. This creates a `.deb` file in the `packages` directory--transfer that to your iOS device and install it.
-4. Alternatively to step (3), if you have SSH enabled on your iPhone, open the Makefile and change `THEOS_DEVICE_IP` to your iPhone's IP Address
+4. Alternatively to step (3), if you have SSH enabled on your iPhone, open the Makefile and change `THEOS_DEVICE_IP` to your iPhone's IP Address, and then run `make package install`. You'll have to enter your iPhone password twice (the default password is alpine)
 
 ## How to use/test SIMLessPNRGateway
 
