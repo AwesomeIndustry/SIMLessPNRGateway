@@ -1,7 +1,7 @@
 # SIMLessPNRGateway
 [Public version] iMessage phone number registration on Android devices, without a separate SIM card! Special thanks to [itsjunetime](https://github.com/itsjunetime) and [ericmigi](https://gist.github.com/ericmigi) for Objective-C help and advice!
 
-Also, if you need a version for 10.x, 9.x, 8.x, or 7.x, check out (VintagePNR)[https://github.com/AwesomeIndustry/VintagePNR], which does
+Also, if you need a version for 10.x, 9.x, 8.x, or 7.x, check out [VintagePNR](https://github.com/AwesomeIndustry/VintagePNR), which does
 the same thing as SIMLessPNRGateway, but for these older iOS versions. 8.x and 7.x might take some minor tweaking to work, but I've
 tested it on 10.3.3 and it works great.
 
