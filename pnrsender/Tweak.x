@@ -9,7 +9,6 @@
 #import "dlfcn.h"
 
 
-NSString * const ANDROID_PHONE_NUMBER = @"+17777777777";
 NSString * const DUMMY_PLMN = @"310410"; //AT&T USA
 NSString * const DUMMY_IMSI = @"310410777777778";
 
@@ -39,8 +38,21 @@ NSString * const DUMMY_IMSI = @"310410777777778";
         //Note: This appeared to work when overriding with @"28818773", but I'm fairly sure it's supposed to be the Android phone number
         // NSString *pnrGatewayNumber = @"28818773";
         // return %orig(pnrGatewayNumber);
-        NSLog(@"PNRGateway: SMSMechanismWithContext called, overriding gatewayAddress with %@", ANDROID_PHONE_NUMBER);
-        return %orig(ANDROID_PHONE_NUMBER);
+
+        NSLog(@"PNRGateway: SMSMechanismWithContext called");
+
+
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:@"/pnr_android_number.txt" encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"PNRGateway: Error reading phone number from file: %@", error);
+        }
+
+        NSString *trimmedString = [fileContents stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+        NSLog(@"PNRGateway: Overriding gatewayAddress with %@", trimmedString);
+        return %orig(trimmedString);
     }
 
     + (id)SMSLessMechanism {
@@ -52,7 +64,17 @@ NSString * const DUMMY_IMSI = @"310410777777778";
         NSLog(@"PNRGateway: Got SMSLess mechanism, overriding with SMS mechanism");
         %log;
 
-        return [%c(IDSPhoneNumberValidationMechanism) SMSMechanismWithContext:ANDROID_PHONE_NUMBER];
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:@"/pnr_android_number.txt" encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"PNRGateway: Error reading phone number from file: %@", error);
+        }
+
+        NSString *trimmedString = [fileContents stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+
+        return [%c(IDSPhoneNumberValidationMechanism) SMSMechanismWithContext:trimmedString];
 
     }
 
@@ -61,11 +83,23 @@ NSString * const DUMMY_IMSI = @"310410777777778";
         //This code is just here to make sure it creates an SMS registration object (type = 1) with the Android phone
         //  number for the gatewayAddress.
 
-        NSLog(@"PNRGateway: Got initWithType call, overriding with type 1 and gatewayAddress %@", ANDROID_PHONE_NUMBER);
+        NSLog(@"PNRGateway: Got initWithType call");
+
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:@"/pnr_android_number.txt" encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"PNRGateway: Error reading phone number from file: %@", error);
+        }
+
+        NSString *trimmedString = [fileContents stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+        NSLog(@"PNRGateway: Overriding with type 1 and gatewayAddress %@", trimmedString);
+
 
         %log; // -[<IDSPhoneNumberValidationMechanism: 0x1017cc160> initWithType:1 context:+447537410287]
         // return %orig(1, @"+11234567890"); //Type 1 = SMS-based
-        return %orig(1,ANDROID_PHONE_NUMBER);
+        return %orig(1,trimmedString);
     }
 
 %end
@@ -424,7 +458,16 @@ MSHook(int, _CTServerConnectionIsUserIdentityModuleRequired, void* arg1, void* a
 %hook IDSRegistration
     //This runs once PNR is done and it needs to finalize registration over HTTP
     - (NSString *) phoneNumber {
-        return ANDROID_PHONE_NUMBER;
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:@"/pnr_android_number.txt" encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"PNRGateway: Error reading phone number from file: %@", error);
+        }
+
+        NSString *trimmedString = [fileContents stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+        return trimmedString;
     };
     - (_Bool) canRegister {
         return YES;
@@ -453,7 +496,7 @@ MSHook(int, _CTServerConnectionIsUserIdentityModuleRequired, void* arg1, void* a
     - (NSString *)IMSI {
         NSLog(@"PNRGateway: Setting up preflight message with fake IMSI");
         %log;
-        return DUMY_IMSI;
+        return DUMMY_IMSI;
     }
 
     - (NSArray *) responseMechanisms {
@@ -462,7 +505,19 @@ MSHook(int, _CTServerConnectionIsUserIdentityModuleRequired, void* arg1, void* a
         NSMutableDictionary *smsMechanism = [[NSMutableDictionary alloc] init];
 
         [smsMechanism setObject:@"SMS" forKey:@"mechanism"];
-        [smsMechanism setObject:ANDROID_PHONE_NUMBER forKey:@"mechanism-data"];
+
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:@"/pnr_android_number.txt" encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"PNRGateway: Error reading phone number from file: %@", error);
+        }
+
+        NSString *trimmedString = [fileContents stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+
+
+        [smsMechanism setObject:trimmedString forKey:@"mechanism-data"];
 
         return @[smsMechanism];
     }
